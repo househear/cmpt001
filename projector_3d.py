@@ -11,6 +11,7 @@ class PointCloudVisualizer():
         self.depth_map = None
         self.rgb = None
         self.pcl = None
+        self.ok = True
 
         self.pinhole_camera_intrinsic = o3d.camera.PinholeCameraIntrinsic(width,
                                                                          height,
@@ -41,10 +42,25 @@ class PointCloudVisualizer():
             pcd = pcd.remove_statistical_outlier(30, 0.1)[0]
             self.pcl.points = pcd.points
             self.pcl.colors = pcd.colors
+            # self.pcl.points = np.array([0, 0, 0])
+            # self.pcl.points.append(np.array([1, 0, 0]))
+            # self.pcl.points.append(np.array([1, 1, 0]))
+            # self.pcl.points.append(np.array([0, 1, 0]))
+            # self.pcl.points.append(np.array([0, 0, 0]))
+            #self.pcl.colors = pcd.colors
+
         self.pcl.rotate(self.R_camera_to_world, center=np.array([0,0,0],dtype=np.float64))
         return self.pcl
 
     def visualize_pcd(self):
+        if True:
+            pcd = o3d.io.read_point_cloud('fragment.ply')
+            self.pcl.points = pcd.points[0:100]
+            self.pcl.colors = pcd.colors[0:100]
+            self.ok = False
+        else:
+            self.ok = True
+
         if not self.isstarted:
             self.vis.add_geometry(self.pcl)
             origin = o3d.geometry.TriangleMesh.create_coordinate_frame(size=0.3, origin=[0, 0, 0])
