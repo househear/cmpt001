@@ -9,7 +9,7 @@ import platform
 from plot import SubplotAnimation
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
-
+import math
 class Camera:
     def __init__(self):
         self.init_camera()
@@ -103,31 +103,82 @@ class Inspection:
         self.online = online
         self.offline_image_path = offline_image_path
         self.img = None
-        self.plot_init()
-        self.result = None
+        self.circles = None
+#        self.plot_init()
         self.result= {'thetas': [0, 0.5, 1],
                       'rs': [500, 600, 700]}
         #self.ani = SubplotAnimation(self.result)
         if online:
             self.camera = Camera()
 
+    def plot_circle_as_circle(self):
 
-    def plot_init(self):
-        n = 0
+        # x axis values
+        x = [1,2,3,4,5,6]
+        # corresponding y axis values
+        y = [2,4,1,5,2,6]
+        color_index = 0
+        for circle in self.circles:
+            if len(circle.rs) > 0:
 
-        # self.fig = plt.figure()
-        #
-        # ax1 = self.fig.add_subplot(1, 2, 1)
-        # self.line1 = Line2D([], [], color='red', marker='o', markeredgecolor='r')
-        # ax1.add_line(self.line1)
-        # ax1.set_xlim(0, 3.14*2)
-        # ax1.set_ylim(60, 70)
+                rs_arr = np.array(circle.rs)
+                thetas_arr = np.array(circle.thetas)
 
+                circle_x = np.dot(rs_arr,np.cos(thetas_arr))
+                circle_y = np.dot(rs_arr,np.sin(thetas_arr))
+                # plotting the points 
+                plt.plot(circle_x, circle_y, 
+                color=config.color_array[np.mod(color_index, len(config.color_array))], 
+                linestyle='dashed', linewidth = 3,
+                marker='o', markerfacecolor='blue', markersize=12)
+                color_index =  color_index + 1
+        
+        # setting x and y axis range
+        # plt.xlim(0,6.28)
+        # plt.ylim(600,1200)
+        plt.xlim(-2000,2000)
+        plt.ylim(-2000,2000)        
+        # naming the x axis
+        plt.xlabel('x - axis')
+        # naming the y axis
+        plt.ylabel('y - axis')
+        
+        # giving a title to my graph
+        plt.title('Some cool customizations!')
+        
+        # function to show the plot
+        plt.show()
 
-        # y1 = np.cos(2 * np.pi * x1) * np.exp(-x1)
-        # y2 = np.cos(2 * np.pi * x2)
+    def plot_circle(self):
 
-       # self.line1, = plt.plot(x1, y1, 'ko-')  # so that we can update data later
+        # x axis values
+        x = [1,2,3,4,5,6]
+        # corresponding y axis values
+        y = [2,4,1,5,2,6]
+        color_index = 0
+        for circle in self.circles:
+
+            # plotting the points 
+            plt.plot(circle.thetas, circle.rs, 
+            color=config.color_array[np.mod(color_index, len(config.color_array))], 
+            linestyle='dashed', linewidth = 3,
+                    marker='o', markerfacecolor='blue', markersize=12)
+            color_index =  color_index + 1
+        
+        # setting x and y axis range
+        plt.xlim(0,6.28)
+        plt.ylim(600,1200)
+        
+        # naming the x axis
+        plt.xlabel('x - axis')
+        # naming the y axis
+        plt.ylabel('y - axis')
+        
+        # giving a title to my graph
+        plt.title('Some cool customizations!')
+        
+        # function to show the plot
+        plt.show()
 
     def fetch_image(self):
         if self.online:
@@ -135,10 +186,13 @@ class Inspection:
         else:
             self.img = cv2.imread(self.offline_image_path, cv2.IMREAD_COLOR)
 
-    def cal_3d(self):
+    def run(self):
         depth = Tri3d(self.img)
         depth.run(show_ray = True,
                   show_cross_point = True)
+
+        self.circles = depth.parse_circles_v01()
+        m = 0
         self.result = depth.cal_3d()
 
     def plot(self):

@@ -1,6 +1,9 @@
 testing_path = 'images/testing/'
+color_array = ['b', 'g','r','c','m','y','k']
 step_radius = 0.3
-step_turning = 10
+step_turning = 1
+r_inner = 700
+r_outter = 1000
 pix_to_physics = 0.083 # mm/pix
 f = 12 # lens focus lenght (mm)
 ls = {'1': 50,
@@ -28,3 +31,9 @@ ls = {'1': 50,
       '23': 165,
       '24': 170,
       '25': 175}
+
+jump_r_threshold_in_circle = 10
+jump_theta_threshold_in_circle = 0.5
+search_template_r_step = 33
+search_template_circle_num = 8
+search_template_delta_r_error = 20
