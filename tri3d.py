@@ -1,5 +1,5 @@
 
-
+import matplotlib.pyplot as plt
 import cv2
 import numpy as np
 import math
@@ -126,11 +126,19 @@ class Circle_v01:
 		self.index = index
 		self.thetas = []
 		self.rs = []
+		self.pc_xs = []
+		self.pc_ys = []
+		self.pc_zs = []
 
 
 	def add_point(self, _theta, _r):
 		self.thetas.append(_theta)
 		self.rs.append(_r)
+	
+	def plot(self,ax,_color):
+
+		# Creating plot
+		ax.scatter3D(self.pc_xs, self.pc_ys, self.pc_zs, color = _color)
 
 class Circle:
 	def __init__(self, _init_theta, _init_r):
@@ -162,7 +170,6 @@ class Tri3d:
 		#cv2.waitKey(0)
 
 	def parse_circles_v01(self):
-		
 		active_circle_r = []
 		active_circle_theta = []
 		#search the min r in the first 5 rays
@@ -223,7 +230,6 @@ class Tri3d:
 				# if search_template_r_offsets:
 				# 	search_template_rs_live = search_template_rs_live + mean(search_template_r_offsets)
 
-		m = 0
 		return self.circles
 		
 
@@ -247,9 +253,22 @@ class Tri3d:
 			
 		return self.circles
 
+
+
+	def cal_3d_v01(self):
+
+		for circle in self.circles:
+			l = config.L[circle.index]
+			f = config.F[circle.index]
+			rs_arr = np.array(circle.rs) * config.pix_to_physics
+			thetas_arr = np.array(circle.thetas)
+			circle.pc_xs = (l/f) * rs_arr * np.cos(thetas_arr)
+			circle.pc_ys = l
+			circle.pc_zs = (l/f) * rs_arr * np.sin(thetas_arr)
+
 	def cal_3d(self):
 		theta_i = 0
-		_len = len(self.theta_rs)
+
 		for rs_along_ray in self.theta_rs:
 			theta_j = 0
 			l_index = 0
@@ -269,8 +288,8 @@ class Tri3d:
 			theta_i += 1
 		return self.theta_rs
 
-	def run(self, show_ray, show_cross_point):
-		#
+	def run(self, show_ray, show_cross_point, show_theta_r_circles, show_3d_circles):
+		# scan rays
 		for theta in np.arange(0, 360, config.step_turning):
 			ray = Ray(self.img, self.centroid['x'], self.centroid['y'], theta * 3.14 / 180)
 			ray.scan()
@@ -279,6 +298,57 @@ class Tri3d:
 				ray.plot()
 		if show_cross_point:
 			self.plot_cross_point()
+		
+		self.parse_circles_v01()
+		if show_theta_r_circles:
+			self.plot_theta_r_circles()
+
+		self.cal_3d_v01()
+		if show_3d_circles:
+			self.plot_3d_circles()
+
+	def plot_3d_circles(self):
+				# Creating figure
+		fig = plt.figure(figsize = (10, 7))
+		ax = plt.axes(projection ="3d")
+		color_index = 0
+		for circle in self.circles:
+			color=config.color_array[np.mod(color_index, len(config.color_array))]
+			circle.plot(ax, color)
+			color_index =  color_index + 1
+		plt.title("simple 3D scatter plot")
+		
+		# show plot
+		plt.show()
+
+
+	def plot_theta_r_circles(self):
+		fig = plt.figure(figsize = (10, 7))
+		color_index = 0
+		
+		for circle in self.circles:
+
+            # plotting the points 
+			plt.plot(circle.thetas, circle.rs, 
+			color=config.color_array[np.mod(color_index, len(config.color_array))], 
+			linestyle='dashed', linewidth = 2,
+					marker='o', markerfacecolor='blue', markersize = 5)
+			color_index =  color_index + 1
+        
+		# setting x and y axis range
+		plt.xlim(0,6.28)
+		plt.ylim(600,1000)
+
+		# naming the x axis
+		plt.xlabel('x - axis')
+		# naming the y axis
+		plt.ylabel('y - axis')
+
+		# giving a title to my graph
+		plt.title('r vs theta')
+
+		# function to show the plot
+		plt.show()
 		#cv2.imshow('mono_', self.scan.img)
 
 # Press the green button in the gutter to run the script.

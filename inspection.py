@@ -111,74 +111,43 @@ class Inspection:
         if online:
             self.camera = Camera()
 
-    def plot_circle_as_circle(self):
+    # def plot_circle_as_circle(self):
 
-        # x axis values
-        x = [1,2,3,4,5,6]
-        # corresponding y axis values
-        y = [2,4,1,5,2,6]
-        color_index = 0
-        for circle in self.circles:
-            if len(circle.rs) > 0:
+    #     # x axis values
+    #     x = [1,2,3,4,5,6]
+    #     # corresponding y axis values
+    #     y = [2,4,1,5,2,6]
+    #     color_index = 0
+    #     for circle in self.circles:
+    #         if len(circle.rs) > 0:
 
-                rs_arr = np.array(circle.rs)
-                thetas_arr = np.array(circle.thetas)
+    #             rs_arr = np.array(circle.rs)
+    #             thetas_arr = np.array(circle.thetas)
 
-                circle_x = np.dot(rs_arr,np.cos(thetas_arr))
-                circle_y = np.dot(rs_arr,np.sin(thetas_arr))
-                # plotting the points 
-                plt.plot(circle_x, circle_y, 
-                color=config.color_array[np.mod(color_index, len(config.color_array))], 
-                linestyle='dashed', linewidth = 3,
-                marker='o', markerfacecolor='blue', markersize=12)
-                color_index =  color_index + 1
+    #             circle_x = np.dot(rs_arr,np.cos(thetas_arr))
+    #             circle_y = np.dot(rs_arr,np.sin(thetas_arr))
+    #             # plotting the points 
+    #             plt.plot(circle_x, circle_y, 
+    #             color=config.color_array[np.mod(color_index, len(config.color_array))], 
+    #             linestyle='dashed', linewidth = 3,
+    #             marker='o', markerfacecolor='blue', markersize=12)
+    #             color_index =  color_index + 1
         
-        # setting x and y axis range
-        # plt.xlim(0,6.28)
-        # plt.ylim(600,1200)
-        plt.xlim(-2000,2000)
-        plt.ylim(-2000,2000)        
-        # naming the x axis
-        plt.xlabel('x - axis')
-        # naming the y axis
-        plt.ylabel('y - axis')
+    #     # setting x and y axis range
+    #     # plt.xlim(0,6.28)
+    #     # plt.ylim(600,1200)
+    #     plt.xlim(-2000,2000)
+    #     plt.ylim(-2000,2000)        
+    #     # naming the x axis
+    #     plt.xlabel('x - axis')
+    #     # naming the y axis
+    #     plt.ylabel('y - axis')
         
-        # giving a title to my graph
-        plt.title('Some cool customizations!')
+    #     # giving a title to my graph
+    #     plt.title('Some cool customizations!')
         
-        # function to show the plot
-        plt.show()
-
-    def plot_circle(self):
-
-        # x axis values
-        x = [1,2,3,4,5,6]
-        # corresponding y axis values
-        y = [2,4,1,5,2,6]
-        color_index = 0
-        for circle in self.circles:
-
-            # plotting the points 
-            plt.plot(circle.thetas, circle.rs, 
-            color=config.color_array[np.mod(color_index, len(config.color_array))], 
-            linestyle='dashed', linewidth = 3,
-                    marker='o', markerfacecolor='blue', markersize=12)
-            color_index =  color_index + 1
-        
-        # setting x and y axis range
-        plt.xlim(0,6.28)
-        plt.ylim(600,1200)
-        
-        # naming the x axis
-        plt.xlabel('x - axis')
-        # naming the y axis
-        plt.ylabel('y - axis')
-        
-        # giving a title to my graph
-        plt.title('Some cool customizations!')
-        
-        # function to show the plot
-        plt.show()
+    #     # function to show the plot
+    #     plt.show()
 
     def fetch_image(self):
         if self.online:
@@ -186,16 +155,17 @@ class Inspection:
         else:
             self.img = cv2.imread(self.offline_image_path, cv2.IMREAD_COLOR)
 
-    def run(self):
+    def inspect(self):
         depth = Tri3d(self.img)
         depth.run(show_ray = True,
-                  show_cross_point = True)
+                  show_cross_point = True,
+                  show_theta_r_circles= True,
+                  show_3d_circles = True)
 
-        self.circles = depth.parse_circles_v01()
-        m = 0
-        self.result = depth.cal_3d()
+        #self.circles = depth.parse_circles_v01()
+        #self.result = depth.cal_3d_v01()
 
-    def plot(self):
+    def plot_img(self):
         thetas = []
         rs = []
         for theta_r_ray in self.result:
@@ -225,5 +195,5 @@ class Inspection:
         #frame = cv2.resize(self.img, (1024, 1024), interpolation=cv2.INTER_LINEAR)
         #frame = cv2.cvtColor(frame, cv2.COLOR_GRAY2RGB)
         cv2.imshow('img', self.img)
-        small_frame = cv2.resize(self.img, (512, 512), interpolation=cv2.INTER_LINEAR)
+        small_frame = cv2.resize(self.img, (1024, 1024), interpolation=cv2.INTER_LINEAR)
         cv2.imshow('img_small', small_frame)

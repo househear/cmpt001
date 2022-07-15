@@ -37,3 +37,6 @@ jump_theta_threshold_in_circle = 0.5
 search_template_r_step = 33
 search_template_circle_num = 8
 search_template_delta_r_error = 20
+
+L = range(60, 180, 6)
+F = range(65, 180, 12)
